@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#9ecb36">
+  <title>ChartDeck — GigSuite</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-app-theme="gigsuite" data-chart-theme="light">
+  <div class="app-frame">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <button id="settingsButton" class="sidebar-icon" aria-label="Settings">⚙︎</button>
+        <div class="brand" aria-label="ChartDeck, a GigSuite module">
+          <img class="brand-app-icon" src="chartdeck-logo.png" alt="">
+          <span class="brand-copy"><strong>ChartDeck</strong><small>a GigSuite module</small></span>
+        </div>
+        <button id="sidebarCollapseButton" class="sidebar-icon collapse-control" aria-label="Collapse side menu" title="Collapse side menu">‹</button>
+      </div>
+
+      <nav id="mainNavigation" class="main-nav" aria-label="Library navigation">
+        <button class="nav-item active" data-view="songs"><span>♫</span><span>Songs</span></button>
+        <button class="nav-item" data-view="setlists"><span>☷</span><span>Setlists</span></button>
+        <button class="nav-item" data-filter="artist"><span>♙</span><span>Artists</span></button>
+        <button class="nav-item" data-filter="tag"><span>◇</span><span>Tags</span></button>
+        <button class="nav-item" data-filter="key"><span>⌕</span><span>Keys</span></button>
+        <button class="nav-item" data-filter="recent"><span>◷</span><span>Recently Added</span></button>
+        <button class="nav-item" data-filter="favourite"><span>☆</span><span>Favourites</span></button>
+      </nav>
+
+      <div class="sidebar-heading-row">
+        <span>SETLISTS</span>
+        <button id="quickNewSetlistButton" class="plain-icon" aria-label="New setlist">＋</button>
+      </div>
+      <div id="sidebarSetlists" class="sidebar-setlists"></div>
+
+      <div class="sidebar-partner-brand">
+        <img src="SBlogo.png" alt="Someone Borrowed">
+      </div>
+
+      <div class="sidebar-storage">
+        <div class="storage-row"><span>Library Storage</span><span id="storageCount">0 songs</span></div>
+        <div class="storage-track"><div id="storageBar" class="storage-bar"></div></div>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <section id="libraryPanel" class="library-panel">
+        <header class="library-header">
+          <div>
+            <div class="eyebrow">LIBRARY</div>
+            <h1 id="libraryHeading">Songs</h1>
+          </div>
+          <div class="header-actions">
+            <button id="libraryCollapseButton" class="icon-button" aria-label="Collapse library" title="Collapse library">‹</button>
+            <button id="themeButton" class="icon-button" aria-label="Themes">◐</button>
+            <button id="addSongButton" class="round-add" aria-label="Add song">＋</button>
+          </div>
+        </header>
+
+        <div id="songLibraryControls">
+          <div class="search-row">
+            <label class="search-box">
+              <span>⌕</span>
+              <input id="searchInput" type="search" placeholder="Search songs, artists, tags…" autocomplete="off">
+            </label>
+            <button id="filterButton" class="icon-button" aria-label="Filters">▽</button>
+          </div>
+          <div class="table-heading">
+            <button id="titleSort" class="column-sort active" data-sort="title">Title <span>↑</span></button>
+            <button class="column-sort" data-sort="artist">Artist</button>
+            <button class="column-sort small-column" data-sort="originalKey">Key</button>
+            <button class="column-sort tags-column" data-sort="tags">Tags</button>
+            <span class="table-icons">☷ ⠿</span>
+          </div>
+          <div id="songCount" class="song-count"></div>
+          <div id="songTable" class="song-table"></div>
+        </div>
+
+        <section id="categoryPanel" class="category-panel hidden">
+          <div id="categoryList" class="category-list"></div>
+        </section>
+
+        <section id="setlistPanel" class="setlist-panel hidden">
+          <header class="setlist-header">
+            <div>
+              <div class="eyebrow">SETLIST</div>
+              <h2 id="setlistHeading">Setlist</h2>
+            </div>
+            <div class="header-actions">
+              <button id="performSetlistButton" class="primary-small">▶ Perform</button>
+              <button id="renameSetlistButton" class="text-button">Edit</button>
+              <button id="newSetlistButton" class="primary-small">＋ Add Setlist</button>
+            </div>
+          </header>
+          <div class="setlist-summary"><span id="setlistSummary">0 songs</span><button id="addBreakButton" class="text-button">＋ Add Break</button></div>
+          <div id="setlistRows" class="setlist-rows"></div>
+          <footer class="setlist-footer">
+            <button class="setlist-footer-button" data-set-action="songs">♫<span>Songs</span></button>
+            <button class="setlist-footer-button active" data-set-action="reorder">↕<span>Reorder</span></button>
+            <button class="setlist-footer-button" data-set-action="info">ⓘ<span>Set Info</span></button>
+            <button class="setlist-footer-button" data-set-action="export">⇧<span>Export</span></button>
+            <button class="setlist-footer-button" data-set-action="more">•••<span>More</span></button>
+          </footer>
+        </section>
+      </section>
+
+      <section class="chart-panel">
+        <button id="libraryOpenButton" class="library-open-tab" type="button" aria-label="Open library" title="Open library">›</button>
+        <header class="chart-header">
+          <button id="backToLibraryButton" class="back-button" aria-expanded="false">☰ Library</button>
+          <div class="chart-title-block">
+            <h2 id="chartTitle">Select a song</h2>
+            <div id="chartArtist">Choose a song from the library</div>
+          </div>
+          <div class="chart-header-actions">
+            <button id="performanceLockButton" class="lock-button" aria-pressed="false" disabled><span id="performanceLockIcon">🔓</span><span id="performanceLockLabel">Lock</span></button>
+            <button id="editSongButton" class="text-button" disabled>Edit</button>
+            <button id="quickEditButton" class="icon-button" aria-label="Quick edit" disabled>✎</button>
+            <button id="favouriteButton" class="icon-button" aria-label="Favourite" disabled>♡</button>
+            <button id="songMoreButton" class="icon-button" aria-label="More options" disabled>•••</button>
+          </div>
+        </header>
+
+        <div id="performanceBanner" class="performance-banner hidden">
+          <div>
+            <span id="performanceSetlistName" class="performance-setlist-name">Setlist</span>
+            <strong id="performanceSectionName">SET 1</strong>
+          </div>
+          <div class="performance-banner-actions">
+            <span id="performanceSongCount">Song 1 of 1</span>
+            <button id="exitSetlistPerformanceButton" type="button">Exit Setlist</button>
+          </div>
+        </div>
+
+        <div class="chart-toolbar">
+          <button id="transposeDownButton" class="toolbar-square" disabled>−</button>
+          <button id="transposeSheetButton" class="original-key-button" disabled>
+            <strong id="displayKey">—</strong>
+            <span>Original Key</span>
+          </button>
+          <button id="transposeUpButton" class="toolbar-square" disabled>＋</button>
+          <button id="resetTransposeButton" class="toolbar-button" disabled>Reset</button>
+          <button id="capoButton" class="toolbar-item" disabled><span class="toolbar-icon">⚑</span><span id="capoLabel">Capo</span></button>
+          <button id="tempoButton" class="toolbar-item" disabled><strong id="tempoValue">—</strong><span>Tempo</span></button>
+          <button id="scrollToggleButton" class="toolbar-item scroll-toggle-button" disabled aria-pressed="false"><strong id="scrollStatusIcon">▶</strong><span>Scroll</span></button>
+          <button id="scrollSpeedButton" class="toolbar-item scroll-speed-button" disabled><strong id="scrollSpeedValue">22</strong><span>Speed</span></button>
+          <button id="chartMoreButton" class="toolbar-item" disabled><strong>•••</strong><span>More</span></button>
+        </div>
+
+        <article id="chartPaper" class="chart-paper empty-chart">
+          <div>Select a song from the library.</div>
+        </article>
+        <button id="scrollProgressTrack" class="scroll-progress-track" type="button" aria-label="Song scroll position" title="Tap to jump within the song">
+          <span id="scrollProgressBar" class="scroll-progress-bar"></span>
+        </button>
+
+        <footer class="chart-footer">
+          <button id="previousSongButton" disabled>≪ <span>Previous Song</span></button>
+          <span id="chartPosition">0 of 0</span>
+          <button id="nextSongButton" disabled><span>Next Song</span> ≫</button>
+        </footer>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="songDialog" class="sheet-dialog wide-dialog">
+    <form id="songForm" method="dialog">
+      <header class="dialog-header">
+        <div><div class="eyebrow">SONG EDITOR</div><h2 id="songDialogHeading">Add Song</h2></div>
+        <button type="button" class="icon-button" data-close-dialog="songDialog">✕</button>
+      </header>
+      <div class="form-grid">
+        <label>Title<input id="songTitleInput" required></label>
+        <label>Artist<input id="songArtistInput" required></label>
+        <label>Original Key<input id="songKeyInput" required placeholder="G, F#m, Bb…"></label>
+        <label>Tempo<input id="songTempoInput" type="number" min="20" max="300" placeholder="120"></label>
+        <label>Tags<input id="songTagsInput" placeholder="60s, Rock, Singalong"></label>
+        <label>Capo<input id="songCapoInput" type="number" min="0" max="12" value="0"></label>
+      </div>
+      <label>Lyrics and chords
+        <textarea id="songChartInput" rows="17" placeholder="[Verse]\n[G]First line of lyrics\n[C]Next line of lyrics"></textarea>
+      </label>
+      <p class="helper-text">Place chords in square brackets immediately before the word where each change happens.</p>
+      <footer class="dialog-actions">
+        <button type="button" class="secondary-button" data-close-dialog="songDialog">Cancel</button>
+        <button type="submit" class="primary-button">Save Song</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="setlistDialog" class="sheet-dialog small-dialog">
+    <form id="setlistForm" method="dialog">
+      <header class="dialog-header"><h2 id="setlistDialogHeading">New Setlist</h2><button type="button" class="icon-button" data-close-dialog="setlistDialog">✕</button></header>
+      <label>Setlist Name<input id="setlistNameInput" required placeholder="The George Inn"></label>
+      <label>Date<input id="setlistDateInput" type="date"></label>
+      <footer class="dialog-actions"><button type="button" class="secondary-button" data-close-dialog="setlistDialog">Cancel</button><button type="submit" class="primary-button">Save</button></footer>
+    </form>
+  </dialog>
+
+  <dialog id="transposeDialog" class="sheet-dialog narrow-dialog">
+    <form method="dialog">
+      <header class="dialog-header"><h2>Transpose</h2><button type="button" class="text-button" data-close-dialog="transposeDialog">Done</button></header>
+      <div class="transpose-original">Original key: <strong id="transposeOriginalKey">—</strong></div>
+      <div class="large-transpose-control">
+        <button id="sheetTransposeDown" type="button">−</button>
+        <strong id="transposeAmount">0</strong>
+        <button id="sheetTransposeUp" type="button">＋</button>
+      </div>
+      <div class="new-key-display">New key: <strong id="transposeNewKey">—</strong></div>
+      <div class="settings-row enharmonic-row">
+        <span>Accidentals</span>
+        <div class="segmented-control" aria-label="Choose sharps or flats">
+          <button id="enharmonicSharpButton" type="button" data-enharmonic="sharp">Sharps (#)</button>
+          <button id="enharmonicFlatButton" type="button" data-enharmonic="flat">Flats (♭)</button>
+        </div>
+      </div>
+      <label class="switch-row"><span>Remember for this song</span><input id="rememberTransposeToggle" type="checkbox" role="switch"></label>
+      <p class="helper-text">This changes the display key only. The original key is always preserved.</p>
+    </form>
+  </dialog>
+
+  <dialog id="themeDialog" class="sheet-dialog theme-dialog">
+    <form method="dialog">
+      <header class="dialog-header"><h2>Themes</h2><button type="button" class="text-button" data-close-dialog="themeDialog">Done</button></header>
+      <div id="themeChoices" class="theme-choices">
+        <button type="button" data-theme="light"><span class="theme-preview preview-light"></span><span>Light</span></button>
+        <button type="button" data-theme="dark"><span class="theme-preview preview-dark"></span><span>Dark</span></button>
+        <button type="button" data-theme="sepia"><span class="theme-preview preview-sepia"></span><span>Sepia</span></button>
+        <button type="button" data-theme="contrast"><span class="theme-preview preview-contrast"></span><span>High Contrast</span></button>
+      </div>
+      <div class="settings-card">
+        <label class="slider-row"><span class="font-small">A</span><input id="fontSizeSlider" type="range" min="16" max="36" value="22"><span class="font-large">A</span></label>
+      </div>
+      <div class="settings-card chord-colour-card">
+        <div class="settings-row chord-colour-heading"><span>Chord Colour</span><span id="chordColourValue">#1478F2</span></div>
+        <div class="colour-picker-row">
+          <input id="chordColourPicker" type="color" value="#1478f2" aria-label="Choose chord colour">
+          <div id="chordColourSwatches" class="colour-swatches" aria-label="Chord colour presets">
+            <button type="button" data-colour="#1478f2" style="--swatch:#1478f2" aria-label="Blue"></button>
+            <button type="button" data-colour="#8b5cf6" style="--swatch:#8b5cf6" aria-label="Purple"></button>
+            <button type="button" data-colour="#e11d48" style="--swatch:#e11d48" aria-label="Red"></button>
+            <button type="button" data-colour="#ea580c" style="--swatch:#ea580c" aria-label="Orange"></button>
+            <button type="button" data-colour="#16a34a" style="--swatch:#16a34a" aria-label="Green"></button>
+            <button type="button" data-colour="#0891b2" style="--swatch:#0891b2" aria-label="Cyan"></button>
+            <button type="button" data-colour="#111827" style="--swatch:#111827" aria-label="Black"></button>
+            <button type="button" data-colour="#ffffff" style="--swatch:#ffffff" aria-label="White"></button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="scrollDialog" class="sheet-dialog small-dialog scroll-dialog">
+    <form method="dialog">
+      <header class="dialog-header"><h2>Auto-scroll</h2><button type="button" class="text-button" data-close-dialog="scrollDialog">Done</button></header>
+      <div class="settings-card">
+        <label class="switch-row"><span>Auto-scroll</span><input id="scrollDialogToggle" type="checkbox" role="switch"></label>
+        <div class="scroll-speed-readout"><strong id="scrollDialogSpeedValue">22</strong><span>pixels per second</span></div>
+        <label class="slider-row scroll-speed-slider-row"><span>Slower</span><input id="scrollSpeedSlider" type="range" min="5" max="100" step="1" value="22"><span>Faster</span></label>
+        <div id="scrollQuickChoices" class="scroll-quick-choices">
+          <button type="button" data-scroll-speed="12">Slow</button>
+          <button type="button" data-scroll-speed="22">Medium</button>
+          <button type="button" data-scroll-speed="38">Fast</button>
+          <button type="button" data-scroll-speed="60">Very Fast</button>
+        </div>
+      </div>
+      <div class="scroll-dialog-actions">
+        <button id="scrollToTopButton" type="button" class="secondary-button">Back to Top</button>
+        <button id="scrollStartStopButton" type="button" class="primary-button">Start Scrolling</button>
+      </div>
+      <p class="helper-text">Tap Scroll in the song toolbar to start or stop. Touching the chart manually pauses auto-scroll.</p>
+    </form>
+  </dialog>
+
+  <dialog id="settingsDialog" class="sheet-dialog settings-dialog">
+    <form method="dialog">
+      <header class="dialog-header"><h2>Settings</h2><button type="button" class="text-button" data-close-dialog="settingsDialog">Done</button></header>
+      <div class="settings-card">
+        <label class="switch-row"><span>Auto-scroll</span><input id="autoScrollToggle" type="checkbox" role="switch"></label>
+        <button type="button" id="autoScrollSettingsButton" class="settings-row"><span>Auto-scroll Speed</span><span id="settingsScrollSpeedValue">22 ›</span></button>
+        <button type="button" id="fontSettingsButton" class="settings-row"><span>Document Font</span><span>System ›</span></button>
+        <button type="button" id="lineSpacingButton" class="settings-row"><span>Line Spacing</span><span id="lineSpacingValue">1.45 ›</span></button>
+        <button type="button" id="tapTempoSettingsButton" class="settings-row"><span>Tap Tempo</span><span id="settingsTempoValue">120 BPM ›</span></button>
+        <button type="button" id="footPedalButton" class="settings-row"><span>Foot Pedal / Bluetooth</span><span>›</span></button>
+      </div>
+      <div class="settings-card">
+        <button type="button" id="backupButton" class="settings-row"><span>Backup Library</span><span>›</span></button>
+        <button type="button" id="restoreButton" class="settings-row"><span>Import / Export</span><span>›</span></button>
+        <input id="restoreInput" type="file" accept="application/json,.json" hidden>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="capoDialog" class="sheet-dialog narrow-dialog value-picker-dialog">
+    <form method="dialog">
+      <header class="dialog-header"><h2>Capo</h2><button type="button" class="text-button" data-close-dialog="capoDialog">Done</button></header>
+      <p class="helper-text">Choose a fret, or swipe the Capo control up and down while viewing a chart.</p>
+      <div id="capoChoices" class="number-choice-grid" aria-label="Choose capo fret">
+        <button type="button" data-capo="0">Off</button>
+        <button type="button" data-capo="1">1</button><button type="button" data-capo="2">2</button>
+        <button type="button" data-capo="3">3</button><button type="button" data-capo="4">4</button>
+        <button type="button" data-capo="5">5</button><button type="button" data-capo="6">6</button>
+        <button type="button" data-capo="7">7</button><button type="button" data-capo="8">8</button>
+        <button type="button" data-capo="9">9</button><button type="button" data-capo="10">10</button>
+        <button type="button" data-capo="11">11</button><button type="button" data-capo="12">12</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="tempoDialog" class="sheet-dialog narrow-dialog value-picker-dialog">
+    <form id="tempoForm">
+      <header class="dialog-header"><h2>Set Tempo</h2><button type="button" class="text-button" data-close-dialog="tempoDialog">Done</button></header>
+      <label class="tempo-number-label">Tempo
+        <div class="tempo-number-wrap"><input id="tempoNumberInput" type="number" inputmode="numeric" min="20" max="300" step="1"><span>BPM</span></div>
+      </label>
+      <input id="tempoSlider" type="range" min="20" max="300" step="1" value="120" aria-label="Tempo slider">
+      <div id="tempoQuickChoices" class="tempo-quick-choices">
+        <button type="button" data-tempo="60">60</button><button type="button" data-tempo="80">80</button>
+        <button type="button" data-tempo="100">100</button><button type="button" data-tempo="120">120</button>
+        <button type="button" data-tempo="140">140</button><button type="button" data-tempo="160">160</button>
+      </div>
+      <footer class="dialog-actions"><button type="button" class="secondary-button" data-close-dialog="tempoDialog">Cancel</button><button type="submit" class="primary-button">Save Tempo</button></footer>
+    </form>
+  </dialog>
+
+  <dialog id="footPedalDialog" class="sheet-dialog foot-pedal-dialog">
+    <form method="dialog">
+      <header class="dialog-header"><div><div class="eyebrow">CONTROLLER</div><h2>Foot Pedal Learn</h2></div><button type="button" class="text-button" data-close-dialog="footPedalDialog">Done</button></header>
+      <p class="helper-text">Tap Learn beside a function, then press the foot-switch button or keyboard key you want to assign. Keyboard Mode B works best with pedals that send key presses.</p>
+      <div id="footBindingList" class="foot-binding-list"></div>
+      <div class="dialog-actions foot-dialog-actions">
+        <button id="resetFootBindingsButton" type="button" class="secondary-button">Restore Defaults</button>
+        <button id="clearFootBindingsButton" type="button" class="danger-row compact-danger">Clear All</button>
+      </div>
+      <div id="learnKeyStatus" class="learn-key-status hidden"><strong>Listening…</strong><span>Press a pedal or key. Escape cancels.</span></div>
+    </form>
+  </dialog>
+
+  <dialog id="songDisplayDialog" class="sheet-dialog settings-dialog">
+    <form id="songDisplayForm">
+      <header class="dialog-header"><div><div class="eyebrow">THIS SONG</div><h2>Performance Settings</h2></div><button type="button" class="text-button" data-close-dialog="songDisplayDialog">Done</button></header>
+      <label class="switch-row"><span>Use custom settings for this song</span><input id="songCustomSettingsToggle" type="checkbox" role="switch"></label>
+      <div id="songCustomSettingsFields" class="settings-card song-custom-fields">
+        <label class="song-setting-row"><span>Scroll speed <strong id="songScrollSpeedValue">22</strong></span><input id="songScrollSpeedSlider" type="range" min="5" max="100" step="1"></label>
+        <label class="song-setting-row"><span>Font size <strong id="songFontSizeValue">22</strong></span><input id="songFontSizeSlider" type="range" min="16" max="36" step="1"></label>
+        <label class="settings-row"><span>Line spacing</span><select id="songLineSpacingSelect"><option value="1.25">Compact</option><option value="1.45">Normal</option><option value="1.65">Comfortable</option><option value="1.85">Wide</option></select></label>
+        <label class="settings-row"><span>Chart theme</span><select id="songChartThemeSelect"><option value="light">Light</option><option value="dark">Dark</option><option value="sepia">Sepia</option><option value="contrast">High Contrast</option></select></label>
+        <label class="settings-row"><span>Chord colour</span><input id="songChordColourPicker" type="color" value="#1478f2"></label>
+        <label class="switch-row"><span>Start auto-scroll when opened</span><input id="songAutoStartScrollToggle" type="checkbox" role="switch"></label>
+      </div>
+      <footer class="dialog-actions"><button id="resetSongDisplayButton" type="button" class="secondary-button">Use App Defaults</button><button type="submit" class="primary-button">Save Settings</button></footer>
+    </form>
+  </dialog>
+
+  <div id="drawerScrim" class="drawer-scrim" aria-hidden="true"></div>
+
+  <div id="songActionsPopover" class="action-popover hidden" role="menu" aria-label="Song actions">
+    <div id="songActionsTitle" class="popover-title">Song</div>
+    <button type="button" data-song-action="open">Open Full Screen</button>
+    <button type="button" data-song-action="setlist">Add to Current Setlist</button>
+    <button type="button" data-song-action="favourite">Add to Favourites</button>
+    <button type="button" data-song-action="edit">Edit Song</button>
+    <button type="button" data-song-action="delete" class="danger-action">Delete Song</button>
+  </div>
+
+  <div id="chartMorePopover" class="action-popover chart-more-popover hidden" role="menu" aria-label="Chart options">
+    <button type="button" data-chart-action="themes">Themes & Chord Colour</button>
+    <button type="button" data-chart-action="autoscroll">Auto-scroll Settings</button>
+    <button type="button" data-chart-action="song-display">Settings for This Song</button>
+    <button type="button" data-chart-action="lock">Performance Lock</button>
+    <button type="button" data-chart-action="font-up">Increase Font Size</button>
+    <button type="button" data-chart-action="font-down">Decrease Font Size</button>
+    <button type="button" data-chart-action="spacing">Change Line Spacing</button>
+    <button type="button" data-chart-action="library">Show Library</button>
+  </div>
+
+  <dialog id="filterDialog" class="sheet-dialog small-dialog">
+    <form method="dialog">
+      <header class="dialog-header"><h2>Filter Songs</h2><button type="button" class="text-button" data-close-dialog="filterDialog">Done</button></header>
+      <label>Artist<select id="artistFilterSelect"><option value="">All artists</option></select></label>
+      <label>Tag<select id="tagFilterSelect"><option value="">All tags</option></select></label>
+      <label>Key<select id="keyFilterSelect"><option value="">All keys</option></select></label>
+      <button id="clearFiltersButton" type="button" class="danger-row">Clear All Filters</button>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

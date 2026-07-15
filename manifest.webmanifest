@@ -1,0 +1,23 @@
+{
+  "name": "ChartDeck \u2014 GigSuite",
+  "short_name": "ChartDeck",
+  "description": "A GigSuite chord chart, lyrics and setlist module for live musicians.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5eedf",
+  "theme_color": "#9ecb36",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
